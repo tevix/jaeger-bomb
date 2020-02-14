@@ -20,7 +20,7 @@ module.exports = function JaegerBomb(options) {
   const seneca = this
   const conf = (options.jaeger && options.jaeger.config) || {}
   const opts = (options.jaeger && options.jaeger.options) || {}
-  const serviceName = options.serviceName
+  const serviceName = options.serviceName || SERVICE_NAME
   const serviceVersion = options.serviceVersion || VERSION
 
   assert(serviceName, 'JaegerBomb/service name is required.')
@@ -83,14 +83,13 @@ module.exports = function JaegerBomb(options) {
     }
 
     const span = parentSpan
-      ? tracer.startSpan(meta.action, { childOf: parentSpan })
-      : tracer.startSpan(meta.action)
+      ? tracer.startSpan(meta.pattern, { childOf: parentSpan })
+      : tracer.startSpan(meta.pattern)
 
     applyTags(span, {
       [opentracing.Tags.SAMPLING_PRIORITY]: 1,
       [tags.KIND]: 'command',
-      [tags.SENECA_PATTERN]: meta.pattern,
-      [tags.SENECA_ACTION]: meta.action
+      [tags.SENECA_PATTERN]: meta.pattern      
     })
 
     tracer.inject(span, opentracing.FORMAT_TEXT_MAP, textCarrier)
